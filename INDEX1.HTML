@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaFlow Pro - Jal Drishti School Water Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/supabase@2"></script>
+</head>
+<body>
+    <div class="water-particles"></div>
+
+    <div id="login-container" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glassmorphism-card w-full max-w-md p-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                    <span class="text-2xl">💧</span>
+                </div>
+                <h1 class="text-2xl font-bold mb-2">AquaFlow Pro</h1>
+                <p class="text-slate-400">Jal Drishti School Edition</p>
+            </div>
+
+            <form id="login-form" class="space-y-6">
+                <div class="floating-input-group">
+                    <select id="school-role" class="floating-input" required>
+                        <option value="">Select Role</option>
+                        <option value="principal">School Principal</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="student">Student Monitor</option>
+                        <option value="maintenance">Maintenance Staff</option>
+                        <option value="admin">System Administrator</option>
+                    </select>
+                    <div class="input-icon">👤</div>
+                </div>
+
+                <div class="floating-input-group">
+                    <input type="text" id="school-id" class="floating-input" placeholder="School ID (e.g., JAL-SCHOOL-001)" required>
+                    <div class="input-icon">🏫</div>
+                </div>
+
+                <div class="floating-input-group">
+                    <input type="password" id="password" class="floating-input" placeholder="Password" required>
+                    <div class="input-icon">🔒</div>
+                </div>
+
+                <button type="submit" class="professional-btn-primary">
+                    Sign In to Dashboard
+                </button>
+            </form>
+
+            <div class="text-center mt-6">
+                <p class="text-xs text-slate-400">
+                    Secure water management for educational institutions
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden min-h-screen bg-slate-900">
+        <div class="fixed left-0 top-0 h-full w-64 bg-slate-800/50 backdrop-blur-xl border-r border-slate-700 z-50">
+            <div class="p-6">
+                <div class="flex items-center mb-8">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-lg">💧</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white">AquaFlow Pro</div>
+                        <div class="text-xs text-slate-400">Jal Drishti Edition</div>
+                    </div>
+                </div>
+
+                <nav class="space-y-2">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-link" data-page="monitoring">
+                        <span class="nav-icon">🌊</span>
+                        Water Monitoring
+                    </a>
+                    <a href="#" class="nav-link" data-page="missions">
+                        <span class="nav-icon">🎯</span>
+                        Conservation Missions
+                        <span class="mission-badge">3</span>
+                    </a>
+                    <a href="#" class="nav-link" data-page="leaderboard">
+                        <span class="nav-icon">🏆</span>
+                        Water Champions
+                    </a>
+                    <a href="#" class="nav-link" data-page="sentinel">
+                        <span class="nav-icon">📹</span>
+                        Tap Sentinel AI
+                    </a>
+                    <a href="#" class="nav-link" data-page="scada-control">
+                        <span class="nav-icon">🎛️</span>
+                        SCADA Control
+                    </a>
+                    <a href="#" class="nav-link" data-page="analytics">
+                        <span class="nav-icon">📈</span>
+                        Analytics & Reports
+                    </a>
+                    <a href="#" class="nav-link" data-page="alerts">
+                        <span class="nav-icon">⚠️</span>
+                        System Alerts
+                        <span class="alert-badge">2</span>
+                    </a>
+                    <a href="#" class="nav-link" data-page="learning">
+                        <span class="nav-icon">📚</span>
+                        Learning Center
+                    </a>
+                    <a href="#" class="nav-link" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </nav>
+            </div>
+
+            <div class="absolute bottom-4 left-4 right-4">
+                <div class="bg-slate-700/50 rounded-lg p-3">
+                    <div class="text-sm font-medium text-white" id="user-name">Principal Sharma</div>
+                    <div class="text-xs text-slate-400" id="user-role">School Principal</div>
+                    <div class="text-xs text-slate-500 mt-1" id="school-display">JAL-SCHOOL-001</div>
+                </div>
+                <button id="logout-btn" class="w-full mt-2 text-sm text-slate-400 hover:text-red-400 transition-colors">
+                    Sign Out
+                </button>
+            </div>
+        </div>
+
+        <div class="ml-64 min-h-screen">
+            <header class="bg-slate-800/30 backdrop-blur-xl border-b border-slate-700 p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-xl font-bold text-white">Water Management Dashboard</h1>
+                        <div class="text-sm text-slate-400" id="live-clock"></div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                            System Online
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div id="dashboard" class="page active p-6">
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-icon" style="background: linear-gradient(135deg, #0ea5e9, #06b6d4);">💧</div>
+                            <div class="kpi-trend positive">-18%</div>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Daily Usage</h3>
+                            <div class="kpi-value" id="daily-usage">1,847 L</div>
+                            <div class="kpi-subtitle">Target: 2,200 L</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-icon" style="background: linear-gradient(135deg, #10b981, #059669);">🎯</div>
+                            <div class="kpi-trend positive">+22%</div>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Conservation Score</h3>
+                            <div class="kpi-value" id="conservation-score">92%</div>
+                            <div class="kpi-subtitle">Excellent Progress</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-icon" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">🚀</div>
+                            <div class="kpi-trend neutral">Active</div>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Active Missions</h3>
+                            <div class="kpi-value" id="active-missions">3</div>
+                            <div class="kpi-subtitle">Water Challenges</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">🏆</div>
+                            <div class="kpi-trend positive">+5</div>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Water Champions</h3>
+                            <div class="kpi-value" id="water-champions">48</div>
+                            <div class="kpi-subtitle">This Month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8 professional-card">
+                        <div class="card-header">
+                            <h3>Real-time Water Usage</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" data-period="day">Day</button>
+                                <button class="chart-btn" data-period="week">Week</button>
+                                <button class="chart-btn" data-period="month">Month</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="water-flow-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>System Status</h3>
+                            <div class="text-sm text-green-400">Live Monitor</div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Drinking Fountains</span>
+                                <span class="text-sm text-green-400" id="fountains-status">8/8 Active</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Washroom Facilities</span>
+                                <span class="text-sm text-green-400" id="washrooms-status">Normal</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Cafeteria Usage</span>
+                                <span class="text-sm text-blue-400" id="cafeteria-usage">45 L/hr</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Garden Irrigation</span>
+                                <span class="text-sm text-blue-400" id="irrigation-status">Auto Mode</span>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-slate-700">
+                                <h4 class="text-sm font-medium text-white mb-3">Quick Actions</h4>
+                                <button id="quick-check-btn" class="btn btn-sm btn-primary w-full mb-2">Run Quick Check</button>
+                                <button id="view-alerts-btn" class="btn btn-sm btn-secondary w-full">View Alerts</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Water Quality Status</h3>
+                            <div class="quality-badge safe">Safe</div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">pH Level</span>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-white">7.1</div>
+                                    <div class="text-xs text-green-400">Safe</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Turbidity</span>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-white">0.4</div>
+                                    <div class="text-xs text-green-400">Excellent</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">TDS (ppm)</span>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-white">165</div>
+                                    <div class="text-xs text-blue-400">Good</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Chlorine</span>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-white">0.7</div>
+                                    <div class="text-xs text-green-400">Safe</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Top Water Champions</h3>
+                            <button class="btn btn-sm btn-secondary">View All</button>
+                        </div>
+                        <div class="p-6" id="top-champions">
+                            </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Active Missions</h3>
+                            <button class="btn btn-sm btn-primary">Join Mission</button>
+                        </div>
+                        <div class="p-6" id="active-missions-preview">
+                            </div>
+                    </div>
+
+                    <div class="col-span-12 professional-card">
+                        <div class="card-header">
+                            <h3>Recent School Activities</h3>
+                            <button class="btn btn-sm btn-secondary">View History</button>
+                        </div>
+                        <div class="p-6" id="school-activity-log">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="water-monitoring-panel professional-card mt-6">
+                    <div class="water-monitoring-header">
+                        <div class="header-left">
+                            <h2 class="water-monitoring-title">
+                                <div class="status-indicator running" id="main-status-indicator"></div>
+                                🌊 Water Monitoring System
+                            </h2>
+                            <p class="water-monitoring-subtitle">Comprehensive real-time monitoring and diagnostics</p>
+                        </div>
+                        <div class="header-right">
+                            <div class="system-info-display">
+                                <div class="info-item">
+                                    <span class="info-label">School:</span>
+                                    <span class="info-value" id="school-status-display">JAL-SCHOOL-001</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Status:</span>
+                                    <span class="info-value status-ready" id="monitor-status">Ready</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Last Update:</span>
+                                    <span class="info-value" id="last-update-time">Just now</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="water-monitoring-content">
+                        <div class="status-overview-section">
+                            <div class="overall-status-card">
+                                <div class="status-main-display">
+                                    <div id="system-status-text" class="status-text status-running">
+                                        Ready for comprehensive diagnostics...
+                                    </div>
+                                    <div id="overall-system-status" class="overall-health status-excellent">
+                                        ---%
+                                    </div>
+                                </div>
+                                <div class="diagnostic-progress">
+                                    <div class="diagnostic-progress-bar" id="diagnostic-progress-bar"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="diagnostics-controls">
+                                <button id="run-diagnostics-btn" class="btn btn-primary diagnostics-btn">
+                                    🔍 Run Full Diagnostics
+                                </button>
+                                <button id="stop-diagnostics-btn" class="btn btn-secondary diagnostics-btn" style="display: none;">
+                                    ⏹️ Stop Diagnostics
+                                </button>
+                                <span id="diagnostics-status" class="diagnostics-status-text">Ready to run diagnostics</span>
+                            </div>
+                        </div>
+                        
+                        <div class="components-section">
+                            <h3 class="components-title">System Components Status</h3>
+                            <div class="components-grid">
+                                <div class="component-item" id="component-water-flow-sensors">
+                                    <div class="component-icon">💧</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Water Flow Sensors</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-pressure-monitoring">
+                                    <div class="component-icon">📊</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Pressure Monitoring</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-temperature-sensors">
+                                    <div class="component-icon">🌡️</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Temperature Sensors</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-water-quality-meters">
+                                    <div class="component-icon">🔬</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Water Quality Meters</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-leak-detection-system">
+                                    <div class="component-icon">🚨</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Leak Detection</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-data-transmission">
+                                    <div class="component-icon">📡</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Data Transmission</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-alert-system">
+                                    <div class="component-icon">🔔</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Alert System</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="component-item" id="component-storage-systems">
+                                    <div class="component-icon">💾</div>
+                                    <div class="component-details">
+                                        <span class="component-name">Storage Systems</span>
+                                        <div class="component-status-container">
+                                            <span class="component-status status-checking">READY</span>
+                                            <span class="component-health">---%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="monitoring" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Real-time Water Monitoring</h2>
+                    <p class="text-slate-400">Live monitoring of water flow, pressure, temperature, and quality across all school facilities</p>
+                </div>
+
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="professional-card">
+                        <div class="p-6 text-center">
+                            <div class="text-3xl mb-2">💧</div>
+                            <div class="text-2xl font-bold text-blue-400" data-live="flow">45.2</div>
+                            <div class="text-sm text-slate-400">L/min</div>
+                            <div class="text-xs text-green-400 mt-1">Live</div>
+                        </div>
+                    </div>
+                    <div class="professional-card">
+                        <div class="p-6 text-center">
+                            <div class="text-3xl mb-2">📊</div>
+                            <div class="text-2xl font-bold text-green-400">2.8</div>
+                            <div class="text-sm text-slate-400">Bar</div>
+                            <div class="text-xs text-green-400 mt-1">Normal</div>
+                        </div>
+                    </div>
+                    <div class="professional-card">
+                        <div class="p-6 text-center">
+                            <div class="text-3xl mb-2">🌡️</div>
+                            <div class="text-2xl font-bold text-yellow-400" data-live="temp">24.5</div>
+                            <div class="text-sm text-slate-400">°C</div>
+                            <div class="text-xs text-green-400 mt-1">Optimal</div>
+                        </div>
+                    </div>
+                    <div class="professional-card">
+                        <div class="p-6 text-center">
+                            <div class="text-3xl mb-2">🔬</div>
+                            <div class="text-2xl font-bold text-cyan-400">0.4</div>
+                            <div class="text-sm text-slate-400">NTU</div>
+                            <div class="text-xs text-green-400 mt-1">Excellent</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>System Controls</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Main Water Supply</span>
+                                <button class="btn btn-sm btn-success">Active</button>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Garden Irrigation</span>
+                                <button class="btn btn-sm btn-primary">Auto</button>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Fountain System</span>
+                                <button class="btn btn-sm btn-success">Running</button>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Emergency Shutoff</span>
+                                <button class="btn btn-sm btn-secondary">Standby</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <button class="btn btn-primary w-full">Test Water Quality</button>
+                            <button class="btn btn-secondary w-full">Generate Report</button>
+                            <button class="btn btn-secondary w-full">Schedule Maintenance</button>
+                            <button class="btn btn-secondary w-full">Export Data</button>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Location-wise Monitoring</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Cafeteria</span>
+                                <span class="text-sm text-green-400">Normal</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Washroom Block A</span>
+                                <span class="text-sm text-green-400">Normal</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Science Lab</span>
+                                <span class="text-sm text-blue-400">Active</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Garden</span>
+                                <span class="text-sm text-blue-400">Irrigating</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="missions" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Water Conservation Missions</h2>
+                    <p class="text-slate-400">Join exciting challenges and earn points while saving water</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Current Missions</h3>
+                                <span class="mission-badge">3 Active</span>
+                            </div>
+                            <div class="p-6" id="current-missions">
+                                </div>
+                        </div>
+
+                        <div class="professional-card mt-6">
+                            <div class="card-header">
+                                <h3>Completed Missions</h3>
+                                <span class="text-sm text-green-400">12 Done</span>
+                            </div>
+                            <div class="p-6" id="completed-missions">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Mission Statistics</h3>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-white">15</div>
+                                    <div class="text-sm text-slate-400">Total Missions</div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-400">Completion Rate</span>
+                                    <span class="text-sm text-green-400">80%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-400">Participation</span>
+                                    <span class="text-sm text-blue-400">248 Students</span>
+                                </div>
+                                
+                                <div class="pt-4 border-t border-slate-700">
+                                    <h4 class="text-sm font-medium text-white mb-3">Recent Rewards</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-slate-400">Zero Waste Week</span>
+                                            <span class="text-green-400">+500 pts</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-slate-400">Tap Guardian</span>
+                                            <span class="text-green-400">+300 pts</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="professional-card mt-6">
+                            <div class="card-header">
+                                <h3>Create New Mission</h3>
+                            </div>
+                            <div class="p-6">
+                                <button class="btn btn-primary w-full">Launch Mission</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="leaderboard" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Student Water Champions</h2>
+                    <p class="text-slate-400">Celebrating our top water conservation heroes</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Top Water Savers</h3>
+                                <div class="chart-controls">
+                                    <button class="chart-btn active">This Month</button>
+                                    <button class="chart-btn">This Week</button>
+                                    <button class="chart-btn">All Time</button>
+                                </div>
+                            </div>
+                            <div class="p-6" id="student-leaderboard">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Champion of the Month</h3>
+                            </div>
+                            <div class="p-6 text-center">
+                                <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-2xl">
+                                    👑
+                                </div>
+                                <div class="text-lg font-bold text-white">Aarav Sharma</div>
+                                <div class="text-sm text-slate-400 mb-4">Class 8A</div>
+                                <div class="bg-slate-800/50 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-yellow-400">2,450</div>
+                                    <div class="text-sm text-slate-400">Points</div>
+                                </div>
+                                <div class="mt-4 text-sm text-green-400">
+                                    Saved 120L this month
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="professional-card mt-6">
+                            <div class="card-header">
+                                <h3>Top Classes</h3>
+                            </div>
+                            <div class="p-6" id="class-rankings">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sentinel" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Tap Sentinel - Visual Monitoring</h2>
+                    <p class="text-slate-400">AI-powered water waste detection and monitoring system</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Live Monitoring Feeds</h3>
+                                <div class="text-sm text-green-400">3 Active Cameras</div>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div id="cafeteria-feed" class="aspect-video rounded-lg flex items-center justify-center">
+                                        <div class="text-center">
+                                            <div class="text-4xl mb-2">📹</div>
+                                            <div class="text-sm text-slate-400">Cafeteria Area</div>
+                                            <div class="text-xs text-red-400">Inactive</div>
+                                        </div>
+                                    </div>
+
+                                    <div id="washroom-feed" class="aspect-video rounded-lg flex items-center justify-center active">
+                                        <div class="text-center">
+                                            <div class="text-4xl mb-2">📹</div>
+                                            <div class="text-sm text-slate-400">Washroom Block</div>
+                                            <div class="text-xs text-green-400">Status: Monitoring</div>
+                                        </div>
+                                    </div>
+
+                                    <div id="fountain-feed" class="aspect-video rounded-lg flex items-center justify-center col-span-2 active">
+                                        <div class="text-center">
+                                            <div class="text-4xl mb-2">⛲</div>
+                                            <div class="text-sm text-slate-400">Drinking Fountains</div>
+                                            <div class="text-xs text-green-400">8 Active</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>AI Detection Results</h3>
+                            </div>
+                            <div class="p-6" id="detection-results">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="scada-control" class="page p-6">
+                 <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">SCADA System Control</h2>
+                    <p class="text-slate-400">Low-level supervisory control and data acquisition for the water management system.</p>
+                </div>
+                <div class="scada-system-panel mb-6 professional-card">
+                    <div class="scada-header card-header">
+                        <h3 class="scada-title text-lg font-bold text-white flex items-center">
+                            <span class="scada-icon mr-2">🎛️</span>
+                            SCADA Water Management System
+                        </h3>
+                        <div class="scada-info flex items-center space-x-4 text-xs text-slate-400">
+                            <span>Node: <span id="scada-node-id" class="text-slate-300">JAL-SCADA-001</span></span>
+                            <span>Last Update: <span id="scada-last-update" class="text-slate-300">--:--:--</span></span>
+                            <div class="flex items-center">
+                                <span class="scada-status-indicator online mr-2" id="scada-connection-status"></span>
+                                <span id="scada-connection-text" class="text-green-400">ONLINE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scada-dashboard p-6">
+                        <div class="scada-section mb-6">
+                            <h4 class="scada-section-title text-md font-semibold text-white mb-4 border-b border-slate-700 pb-2">💧 Water Flow Control</h4>
+                            <div class="scada-controls-grid grid grid-cols-3 gap-6">
+                                <div class="scada-control-item bg-slate-800/50 p-4 rounded-lg text-center">
+                                    <label class="text-sm font-medium text-slate-300 block mb-3">Main Supply Valve</label>
+                                    <div class="valve-control flex items-center justify-center space-x-2 mb-2">
+                                        <button class="valve-btn open btn btn-sm btn-success" id="main-valve-open">OPEN</button>
+                                        <div class="valve-position text-lg font-bold bg-slate-900 px-3 py-1 rounded" id="main-valve-position">75%</div>
+                                        <button class="valve-btn close btn btn-sm btn-danger" id="main-valve-close">CLOSE</button>
+                                    </div>
+                                    <div class="flow-rate text-xs text-blue-400">Flow: <span id="main-flow-rate">145 L/min</span></div>
+                                </div>
+                
+                                <div class="scada-control-item bg-slate-800/50 p-4 rounded-lg text-center">
+                                    <label class="text-sm font-medium text-slate-300 block mb-3">Block A Distribution</label>
+                                    <div class="valve-control flex items-center justify-center space-x-2 mb-2">
+                                        <button class="valve-btn open btn btn-sm btn-success" id="blocka-valve-open">OPEN</button>
+                                        <div class="valve-position text-lg font-bold bg-slate-900 px-3 py-1 rounded" id="blocka-valve-position">80%</div>
+                                        <button class="valve-btn close btn btn-sm btn-danger" id="blocka-valve-close">CLOSE</button>
+                                    </div>
+                                    <div class="flow-rate text-xs text-blue-400">Flow: <span id="blocka-flow-rate">45 L/min</span></div>
+                                </div>
+                
+                                <div class="scada-control-item bg-slate-800/50 p-4 rounded-lg text-center">
+                                    <label class="text-sm font-medium text-slate-300 block mb-3">Block B Distribution</label>
+                                    <div class="valve-control flex items-center justify-center space-x-2 mb-2">
+                                        <button class="valve-btn open btn btn-sm btn-success" id="blockb-valve-open">OPEN</button>
+                                        <div class="valve-position text-lg font-bold bg-slate-900 px-3 py-1 rounded" id="blockb-valve-position">70%</div>
+                                        <button class="valve-btn close btn btn-sm btn-danger" id="blockb-valve-close">CLOSE</button>
+                                    </div>
+                                    <div class="flow-rate text-xs text-blue-400">Flow: <span id="blockb-flow-rate">38 L/min</span></div>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <div class="grid grid-cols-2 gap-6 mb-6">
+                             <div class="scada-section">
+                                <h4 class="scada-section-title text-md font-semibold text-white mb-4 border-b border-slate-700 pb-2">⚡ Pressure Monitoring</h4>
+                                <div class="pressure-gauges grid grid-cols-3 gap-4 text-center">
+                                    <div class="pressure-gauge">
+                                        <div class="text-2xl font-bold text-green-400" id="inlet-pressure-value">2.8 <span class="text-sm">Bar</span></div>
+                                        <label class="text-xs text-slate-400">Inlet Pressure</label>
+                                    </div>
+                                    <div class="pressure-gauge">
+                                        <div class="text-2xl font-bold text-green-400" id="distribution-pressure-value">2.2 <span class="text-sm">Bar</span></div>
+                                        <label class="text-xs text-slate-400">Distribution</label>
+                                    </div>
+                                    <div class="pressure-gauge">
+                                        <div class="text-2xl font-bold text-green-400" id="outlet-pressure-value">1.8 <span class="text-sm">Bar</span></div>
+                                        <label class="text-xs text-slate-400">Outlet Pressure</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <div class="scada-section">
+                                <h4 class="scada-section-title text-md font-semibold text-white mb-4 border-b border-slate-700 pb-2">🏗️ Tank Level Monitoring</h4>
+                                <div class="tank-monitors grid grid-cols-3 gap-4 text-center">
+                                    <div class="tank-monitor">
+                                        <div class="text-2xl font-bold text-cyan-400" id="tank1-level-text">78%</div>
+                                        <label class="text-xs text-slate-400">Overhead Tank 1</label>
+                                    </div>
+                                     <div class="tank-monitor">
+                                        <div class="text-2xl font-bold text-cyan-400" id="tank2-level-text">65%</div>
+                                        <label class="text-xs text-slate-400">Overhead Tank 2</label>
+                                    </div>
+                                    <div class="tank-monitor">
+                                        <div class="text-2xl font-bold text-cyan-400" id="ground-tank-level-text">85%</div>
+                                        <label class="text-xs text-slate-400">Ground Tank</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <div class="scada-section mb-6">
+                            <h4 class="scada-section-title text-md font-semibold text-white mb-4 border-b border-slate-700 pb-2">⚙️ Motor Control</h4>
+                            <div class="motor-controls grid grid-cols-2 gap-6">
+                                <div class="motor-control-item bg-slate-800/50 p-4 rounded-lg flex items-center justify-between">
+                                    <div>
+                                        <label class="text-sm font-medium text-slate-300 block mb-1">Main Water Pump</label>
+                                        <div class="motor-status running text-xs text-green-400 font-bold" id="main-pump-status">RUNNING</div>
+                                        <div class="motor-stats text-xs text-slate-400 mt-2">
+                                            <span>Current: <span id="main-pump-current">15.2A</span></span> |
+                                            <span>Speed: <span id="main-pump-speed">1450 RPM</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="motor-controls-buttons flex space-x-2">
+                                        <button class="motor-btn start btn btn-sm btn-success" id="main-pump-start">START</button>
+                                        <button class="motor-btn stop btn btn-sm btn-danger" id="main-pump-stop">STOP</button>
+                                    </div>
+                                </div>
+                
+                                <div class="motor-control-item bg-slate-800/50 p-4 rounded-lg flex items-center justify-between">
+                                    <div>
+                                        <label class="text-sm font-medium text-slate-300 block mb-1">Booster Pump</label>
+                                        <div class="motor-status stopped text-xs text-red-400 font-bold" id="booster-pump-status">STOPPED</div>
+                                        <div class="motor-stats text-xs text-slate-400 mt-2">
+                                            <span>Current: <span id="booster-pump-current">0A</span></span> |
+                                            <span>Speed: <span id="booster-pump-speed">0 RPM</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="motor-controls-buttons flex space-x-2">
+                                        <button class="motor-btn start btn btn-sm btn-success" id="booster-pump-start">START</button>
+                                        <button class="motor-btn stop btn btn-sm btn-danger" id="booster-pump-stop">STOP</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="scada-section mb-6">
+                            <h4 class="scada-section-title text-md font-semibold text-white mb-4 border-b border-slate-700 pb-2">📊 Real-time Trends</h4>
+                            <div class="scada-chart-container chart-container">
+                                <canvas id="scada-realtime-chart"></canvas>
+                            </div>
+                        </div>
+                
+                        <div class="scada-section emergency-section">
+                            <h4 class="scada-section-title text-md font-semibold text-red-500 mb-4 border-b border-red-900 pb-2">🚨 Emergency Controls</h4>
+                            <div class="emergency-controls grid grid-cols-3 gap-4">
+                                <button class="emergency-btn btn btn-danger w-full" id="emergency-stop">🛑 EMERGENCY STOP ALL</button>
+                                <button class="emergency-btn btn btn-warning w-full" id="emergency-valve-close">❌ CLOSE ALL VALVES</button>
+                                <button class="emergency-btn btn btn-secondary w-full" id="system-reset">🔄 SYSTEM RESET</button>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="scada-log-section mt-6 border-t border-slate-700 pt-4">
+                        <div class="scada-log-header flex justify-between items-center mb-2 px-6">
+                            <h4 class="text-sm font-semibold">System Event Log</h4>
+                            <button class="clear-log-btn text-xs text-slate-400 hover:text-white" id="clear-scada-log">Clear Log</button>
+                        </div>
+                        <div class="scada-log-content h-32 overflow-y-auto bg-slate-900/50 p-4 rounded-lg text-xs font-mono" id="scada-system-log">
+                            <div class="scada-log-item info flex">
+                                <span class="log-timestamp text-slate-500 mr-4">18:45:32</span>
+                                <span class="log-message text-slate-300">Main water pump started - Normal operation</span>
+                            </div>
+                            <div class="scada-log-item warning flex">
+                                <span class="log-timestamp text-slate-500 mr-4">18:44:15</span>
+                                <span class="log-message text-yellow-400">Tank 2 level below 70% - Auto-fill initiated</span>
+                            </div>
+                            <div class="scada-log-item info flex">
+                                <span class="log-timestamp text-slate-500 mr-4">18:42:08</span>
+                                <span class="log-message text-slate-300">Block A valve position adjusted to 80%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="learning" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Water Conservation Hub</h2>
+                    <p class="text-slate-400">Learn, practice, and master water conservation techniques</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Daily Conservation Tips</h3>
+                            <div class="text-sm text-blue-400">Updated Daily</div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="bg-slate-800/50 rounded-lg p-4">
+                                    <div class="font-medium text-white mb-2">💡 Turn off taps while brushing</div>
+                                    <div class="text-sm text-slate-400">Save up to 8L per brushing session</div>
+                                </div>
+                                <div class="bg-slate-800/50 rounded-lg p-4">
+                                    <div class="font-medium text-white mb-2">🔧 Fix leaks immediately</div>
+                                    <div class="text-sm text-slate-400">A dripping tap wastes 20L per day</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>Water Savings Calculator</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-blue-400">1,247L</div>
+                                    <div class="text-sm text-slate-400">Saved This Month</div>
+                                </div>
+                                <button class="btn btn-primary w-full">Calculate Impact</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4 professional-card">
+                        <div class="card-header">
+                            <h3>School Conservation Projects</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Rainwater Harvesting</span>
+                                    <span class="text-sm text-green-400">Active</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Drip Irrigation</span>
+                                    <span class="text-sm text-blue-400">Planning</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Grey Water Recycling</span>
+                                    <span class="text-sm text-yellow-400">Proposed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Water Analytics & Insights</h2>
+                    <p class="text-slate-400">Comprehensive analysis of water usage patterns and conservation effectiveness</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8 professional-card">
+                        <div class="card-header">
+                            <h3>Monthly Usage Trends</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="monthly-trends-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Efficiency Metrics</h3>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-green-400">87%</div>
+                                    <div class="text-sm text-slate-400">Water Efficiency</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-blue-400">23%</div>
+                                    <div class="text-sm text-slate-400">Usage Reduction</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-purple-400">156</div>
+                                    <div class="text-sm text-slate-400">Conservation Actions</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="professional-card mt-6">
+                            <div class="card-header">
+                                <h3>Peak Usage Times</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-slate-400">Morning (8-10 AM)</span>
+                                        <span class="text-sm text-red-400">High</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-slate-400">Lunch (12-2 PM)</span>
+                                        <span class="text-sm text-yellow-400">Medium</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-slate-400">Evening (4-6 PM)</span>
+                                        <span class="text-sm text-green-400">Low</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 professional-card">
+                        <div class="card-header">
+                            <h3>Location-wise Water Usage</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Washrooms</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-32 bg-slate-700 rounded-full h-2">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 45%"></div>
+                                        </div>
+                                        <span class="text-sm text-slate-400">45%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Cafeteria</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-32 bg-slate-700 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 30%"></div>
+                                        </div>
+                                        <span class="text-sm text-slate-400">30%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Garden</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-32 bg-slate-700 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 15%"></div>
+                                        </div>
+                                        <span class="text-sm text-slate-400">15%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 professional-card">
+                        <div class="card-header">
+                            <h3>Seasonal Water Patterns</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="text-center mb-4">
+                                <div class="text-lg font-semibold text-white">Current: Monsoon Season</div>
+                                <div class="text-sm text-slate-400">Reduced consumption, increased harvesting</div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-400">Summer Usage</span>
+                                    <span class="text-sm text-red-400">2,850L/day</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-400">Monsoon Usage</span>
+                                    <span class="text-sm text-green-400">1,847L/day</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-400">Winter Usage</span>
+                                    <span class="text-sm text-blue-400">2,100L/day</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="alerts" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">System Alerts & Notifications</h2>
+                    <p class="text-slate-400">Real-time monitoring and alert management</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-8">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Active Alerts</h3>
+                                <span class="alert-badge">2 Active</span>
+                            </div>
+                            <div class="p-6" id="alerts-list">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <h3>Alert Preferences</h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Email Notifications</span>
+                                    <button class="btn btn-sm btn-success">Enabled</button>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">SMS Alerts</span>
+                                    <button class="btn btn-sm btn-success">Enabled</button>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-white">Push Notifications</span>
+                                    <button class="btn btn-sm btn-secondary">Disabled</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="professional-card mt-6">
+                            <div class="card-header">
+                                <h3>Alert History</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    <div class="text-xs text-slate-400">
+                                        <div class="font-medium">Water Quality Alert</div>
+                                        <div>Resolved 2 hours ago</div>
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        <div class="font-medium">High Usage Alert</div>
+                                        <div>Resolved yesterday</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="page p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">System Settings & Configuration</h2>
+                    <p class="text-slate-400">Manage system preferences and configurations</p>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-6 professional-card">
+                        <div class="card-header">
+                            <h3>General Settings</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Auto-refresh Dashboard</span>
+                                <button class="btn btn-sm btn-success">Enabled</button>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Data Export</span>
+                                <button class="btn btn-sm btn-primary">Configure</button>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Backup Settings</span>
+                                <button class="btn btn-sm btn-secondary">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 professional-card">
+                        <div class="card-header">
+                            <h3>Water Management Settings</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Usage Threshold</span>
+                                <span class="text-sm text-slate-400">2,200 L/day</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Quality Check Interval</span>
+                                <span class="text-sm text-slate-400">6 hours</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-white">Alert Sensitivity</span>
+                                <span class="text-sm text-slate-400">Medium</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 professional-card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <button class="btn btn-primary w-full">Export Monthly Report</button>
+                            <button class="btn btn-secondary w-full">Reset Statistics</button>
+                            <button class="btn btn-secondary w-full">Update System</button>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 professional-card">
+                        <div class="card-header">
+                            <h3>System Information</h3>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-400">Version</span>
+                                <span class="text-sm text-white">v2.1.0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-400">Last Updated</span>
+                                <span class="text-sm text-white">2 days ago</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-400">Database Size</span>
+                                <span class="text-sm text-white">45.2 MB</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-400">Uptime</span>
+                                <span class="text-sm text-white">15 days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
